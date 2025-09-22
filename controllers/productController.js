@@ -64,3 +64,25 @@ export const getBestSellers = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+export const getSearch = async (req, res) => {
+  try {
+    const search = req.query.search || "";
+    let query = {};
+
+    if (search.trim() !== "") {
+      query = {
+        $or: [
+          { name: { $regex: search, $options: "i" } },
+          { category: { $regex: search, $options: "i" } },
+        ],
+      };
+    }
+
+    const products = await Product.find(query).limit(10);
+    res.json(products);
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
