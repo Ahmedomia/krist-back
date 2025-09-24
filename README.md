@@ -24,7 +24,7 @@ Includes secure authentication, product management, shopping cart, and payment g
 **Database:** MongoDB (Mongoose ODM)  
 **Authentication:** JWT, bcrypt  
 **Payments:** Stripe / PayPal (configurable)  
-**Deployment:** Vercel (frontend) & Render/Heroku (backend)
+**Deployment:** Vercel (frontend) & Vercel (backend)
 
 ---
 
@@ -51,7 +51,7 @@ Includes secure authentication, product management, shopping cart, and payment g
 
 ```bash
 # Clone the repository
-git clone https://github.com/Ahmedomia/krist-front.git
+git clone  https://github.com/Ahmedomia/krist-back.git
 cd ecommerce-platform
 
 # Install dependencies
