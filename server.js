@@ -14,8 +14,13 @@ import wishlistRoutes from "./routes/wishlistRoutes.js";
 dotenv.config();
 const app = express();
 app.use(cors());
-
 app.use(express.json());
+
+const mongooseOptions = {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  serverSelectionTimeoutMS: 30000,
+};
 
 mongoose
   .connect(process.env.MONGO_URI)
