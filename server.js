@@ -15,6 +15,9 @@ import path from "path";
 
 dotenv.config();
 const app = express();
+const allowedOrigins = [
+  "https://krist-online-ecommerce-store.vercel.app",
+];
 app.use(
   cors({
     origin: "*",
