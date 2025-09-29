@@ -15,7 +15,21 @@ import path from "path";
 
 dotenv.config();
 const app = express();
-app.use(cors());
+app.use(
+  cors({
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: [
+      "Origin",
+      "X-Requested-With",
+      "Content",
+      "Accept",
+      "Content-Type",
+      "Authorization",
+    ],
+  })
+);
+
 app.use(express.json());
 
 const mongooseOptions = {
