@@ -15,12 +15,21 @@ import path from "path";
 
 dotenv.config();
 const app = express();
+
 const allowedOrigins = [
   "https://krist-online-ecommerce-store.vercel.app",
+  "http://localhost:5173",
 ];
+
 app.use(
   cors({
-    origin: "*",
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: [
       "Origin",
@@ -30,19 +39,20 @@ app.use(
       "Content-Type",
       "Authorization",
     ],
+    credentials: true,
   })
 );
 
+app.options(/.*/, cors());
+
 app.use(express.json());
 
-const mongooseOptions = {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  serverSelectionTimeoutMS: 30000,
-};
-
 mongoose
-  .connect(process.env.MONGO_URI)
+  .connect(process.env.MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    serverSelectionTimeoutMS: 30000,
+  })
   .then(() => console.log("MongoDB Connected"))
   .catch((err) => console.log(err));
 
@@ -56,7 +66,6 @@ app.use("/api/subscribe", subscribeRoutes);
 app.use("/api/wishlist", wishlistRoutes);
 app.use("/api/admin", adminRoutes);
 
-// Static serve uploads
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 const PORT = process.env.PORT || 5000;
