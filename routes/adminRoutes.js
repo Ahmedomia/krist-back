@@ -3,19 +3,19 @@ import { protect, admin } from "../middleware/authMiddleware.js";
 import User from "../models/User.js";
 import Order from "../models/Order.js";
 import Product from "../models/Product.js";
-/* import multer from "multer";
- */import path from "path";
+import multer from "multer";
+import path from "path";
 import fs from "fs";
+import cors from "cors";
 
 const router = express.Router();
 
-// Ensure uploads directory exists
-/* const uploadsDir = path.join(process.cwd(), "uploads");
+const uploadsDir = path.join(process.cwd(), "uploads");
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
-} */
+}
 
-/* const storage = multer.diskStorage({
+const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, uploadsDir);
   },
@@ -27,9 +27,9 @@ if (!fs.existsSync(uploadsDir)) {
     cb(null, `${base}-${Date.now()}${ext}`);
   },
 });
-const upload = multer({ storage }); */
 
-// Users
+const upload = multer({ storage });
+
 router.get("/users", protect, admin, async (req, res) => {
   const users = await User.find().select(
     "name email isAdmin createdAt blocked lastLogin"
@@ -46,7 +46,6 @@ router.put("/users/:id/toggle-admin", protect, admin, async (req, res) => {
 });
 
 router.put("/users/:id/block", protect, admin, async (req, res) => {
-  // Simple soft-block via a flag added ad-hoc
   const user = await User.findByIdAndUpdate(
     req.params.id,
     { $set: { blocked: true } },
@@ -66,7 +65,6 @@ router.put("/users/:id/unblock", protect, admin, async (req, res) => {
   res.json(user);
 });
 
-// Orders
 router.get("/orders", protect, admin, async (req, res) => {
   const orders = await Order.find().populate("user", "name email");
   res.json(orders);
@@ -83,7 +81,6 @@ router.put("/orders/:id/status", protect, admin, async (req, res) => {
   res.json(order);
 });
 
-// Products (basic CRUD)
 router.post("/products", protect, admin, async (req, res) => {
   const product = await Product.create(req.body);
   res.status(201).json(product);
@@ -103,7 +100,6 @@ router.delete("/products/:id", protect, admin, async (req, res) => {
   res.json({ success: true });
 });
 
-// Stock management
 router.put("/products/:id/stock", protect, admin, async (req, res) => {
   const { stock } = req.body;
   const product = await Product.findByIdAndUpdate(
@@ -130,20 +126,23 @@ router.post("/products/seed-stock", protect, admin, async (req, res) => {
   res.json({ seeded: updated.length, products: updated });
 });
 
-// Image upload
-/* router.post(
-  "/upload",
-  protect,
-  admin,
-  upload.fields([{ name: "image" }, { name: "image2" }]),
-  (req, res) => {
+
+router.options("/upload", cors());
+
+router.post("/upload", cors(), protect, admin, (req, res) => {
+  upload.fields([{ name: "image" }, { name: "image2" }])(req, res, (err) => {
+    if (err) {
+      return res.status(400).json({ message: err.message });
+    }
+
     const files = req.files || {};
     const makeUrl = (file) => (file ? `/uploads/${file.filename}` : null);
+
     res.json({
       image: makeUrl(files.image?.[0]),
       image2: makeUrl(files.image2?.[0]),
     });
-  }
-); */
+  });
+});
 
 export default router;
