@@ -3,19 +3,19 @@ import { protect, admin } from "../middleware/authMiddleware.js";
 import User from "../models/User.js";
 import Order from "../models/Order.js";
 import Product from "../models/Product.js";
-import multer from "multer";
-import path from "path";
+/* import multer from "multer";
+ */import path from "path";
 import fs from "fs";
 
 const router = express.Router();
 
 // Ensure uploads directory exists
-const uploadsDir = path.join(process.cwd(), "uploads");
+/* const uploadsDir = path.join(process.cwd(), "uploads");
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
-}
+} */
 
-const storage = multer.diskStorage({
+/* const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, uploadsDir);
   },
@@ -27,7 +27,7 @@ const storage = multer.diskStorage({
     cb(null, `${base}-${Date.now()}${ext}`);
   },
 });
-const upload = multer({ storage });
+const upload = multer({ storage }); */
 
 // Users
 router.get("/users", protect, admin, async (req, res) => {
@@ -131,7 +131,7 @@ router.post("/products/seed-stock", protect, admin, async (req, res) => {
 });
 
 // Image upload
-router.post(
+/* router.post(
   "/upload",
   protect,
   admin,
@@ -144,6 +144,6 @@ router.post(
       image2: makeUrl(files.image2?.[0]),
     });
   }
-);
+); */
 
 export default router;
