@@ -40,6 +40,8 @@ const orderSchema = new mongoose.Schema(
     shippingPrice: { type: Number, required: true },
     totalPrice: { type: Number, required: true },
 
+    status: { type: String, default: "Pending" },
+
     isPaid: { type: Boolean, default: false },
     paidAt: { type: Date },
 

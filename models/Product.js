@@ -15,6 +15,7 @@ const productSchema = new mongoose.Schema({
   rating: Number,
   reviews: Number,
   description: String,
+  stock: { type: Number, default: 0 },
 });
 
 const Product = mongoose.model("Product", productSchema);

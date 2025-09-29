@@ -1,4 +1,6 @@
 import Order from "../models/Order.js";
+import Product from "../models/Product.js";
+import mongoose from "mongoose";
 import { z } from "zod";
 
 const orderSchema = z.object({
@@ -26,21 +28,61 @@ const orderSchema = z.object({
 });
 
 export const addOrder = async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
   try {
     const validatedData = orderSchema.parse(req.body);
+
+    // Check stock for each item first
+    for (const item of validatedData.orderItems) {
+      const product = await Product.findById(item.product).session(session);
+      if (!product) {
+        await session.abortTransaction();
+        return res
+          .status(404)
+          .json({ message: `Product not found: ${item.product}` });
+      }
+      if ((product.stock ?? 0) < item.quantity) {
+        await session.abortTransaction();
+        return res.status(400).json({
+          message: `Insufficient stock for ${product.name}. Available: ${
+            product.stock ?? 0
+          }`,
+        });
+      }
+    }
+
+    // Decrement stock
+    for (const item of validatedData.orderItems) {
+      const updated = await Product.findOneAndUpdate(
+        { _id: item.product, stock: { $gte: item.quantity } },
+        { $inc: { stock: -item.quantity } },
+        { new: true, session }
+      );
+      if (!updated) {
+        await session.abortTransaction();
+        return res.status(400).json({
+          message: `Stock changed for an item. Please retry checkout.`,
+        });
+      }
+    }
 
     const order = new Order({
       user: req.user._id,
       ...validatedData,
     });
 
-    const createdOrder = await order.save();
+    const createdOrder = await order.save({ session });
+    await session.commitTransaction();
     res.status(201).json(createdOrder);
   } catch (error) {
+    await session.abortTransaction();
     if (error instanceof z.ZodError) {
       return res.status(400).json({ errors: error.errors });
     }
     res.status(500).json({ message: error.message });
+  } finally {
+    session.endSession();
   }
 };
 

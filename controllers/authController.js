@@ -17,7 +17,6 @@ const loginSchema = z.object({
   password: z.string().min(1, "Password is required"),
 });
 
-
 export const signup = async (req, res) => {
   try {
     const { name, email, password } = registerSchema.parse(req.body);
@@ -32,6 +31,7 @@ export const signup = async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
+      isAdmin: user.isAdmin,
       token: generateToken(user._id),
     });
   } catch (error) {
@@ -48,10 +48,13 @@ export const login = async (req, res) => {
 
     const user = await User.findOne({ email });
     if (user && (await user.matchPassword(password))) {
+      user.lastLogin = new Date();
+      await user.save();
       res.json({
         _id: user._id,
         name: user.name,
         email: user.email,
+        isAdmin: user.isAdmin,
         token: generateToken(user._id),
       });
     } else {

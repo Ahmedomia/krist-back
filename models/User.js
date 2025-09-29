@@ -13,9 +13,12 @@ const userSchema = new mongoose.Schema(
     phone: { type: String },
     address: { type: String },
     profilePic: { type: String },
+    isAdmin: { type: Boolean, required: true, default: false },
 
     resetPasswordToken: { type: String },
     resetPasswordExpire: { type: Date },
+    blocked: { type: Boolean, default: false },
+    lastLogin: { type: Date },
   },
   { timestamps: true }
 );
