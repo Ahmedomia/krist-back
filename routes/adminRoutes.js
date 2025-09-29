@@ -94,20 +94,6 @@ router.put("/products/:id/stock", protect, admin, async (req, res) => {
   res.json(product);
 });
 
-router.post("/products/seed-stock", protect, admin, async (req, res) => {
-  const min = 5;
-  const max = 50;
-  const products = await Product.find();
-  await Promise.all(
-    products.map((p) =>
-      Product.findByIdAndUpdate(p._id, {
-        $set: { stock: Math.floor(Math.random() * (max - min + 1)) + min },
-      })
-    )
-  );
-  const updated = await Product.find().select("_id stock");
-  res.json({ seeded: updated.length, products: updated });
-});
 
 
 export default router;
