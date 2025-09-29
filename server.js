@@ -17,11 +17,6 @@ import adminRoutes from "./routes/adminRoutes.js";
 dotenv.config();
 const app = express();
 
-app.use((req, res, next) => {
-  console.log(req.method, req.url, req.headers.origin);
-  next();
-});
-
 const allowedOrigins = [
   "https://krist-online-ecommerce-store.vercel.app",
   "http://localhost:5173",
