@@ -2,6 +2,8 @@ import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
+import path from "path";
+
 import productRoutes from "./routes/productRoutes.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
@@ -11,10 +13,14 @@ import addressRoutes from "./routes/addressRoutes.js";
 import subscribeRoutes from "./routes/subscribeRoutes.js";
 import wishlistRoutes from "./routes/wishlistRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
-import path from "path";
 
 dotenv.config();
 const app = express();
+
+app.use((req, res, next) => {
+  console.log(req.method, req.url, req.headers.origin);
+  next();
+});
 
 const allowedOrigins = [
   "https://krist-online-ecommerce-store.vercel.app",
@@ -23,13 +29,7 @@ const allowedOrigins = [
 
 app.use(
   cors({
-    origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, origin);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
+    origin: allowedOrigins,
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: [
@@ -42,7 +42,6 @@ app.use(
     ],
   })
 );
-
 
 app.use(express.json());
 
