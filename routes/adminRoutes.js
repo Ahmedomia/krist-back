@@ -126,7 +126,6 @@ router.post("/products/seed-stock", protect, admin, async (req, res) => {
   res.json({ seeded: updated.length, products: updated });
 });
 
-
 router.options("/upload", cors());
 
 router.post("/upload", cors(), protect, admin, (req, res) => {
